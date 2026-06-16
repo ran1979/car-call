@@ -182,6 +182,17 @@ function populateDropdowns() {
   updateDegemDropdown();
 }
 
+const CHIP_LABELS = { tozar: 'יצרן', degem: 'דגם', shnat: 'שנה', takala: 'תקלה' };
+
+function renderChips() {
+  const chips = Object.entries(CHIP_LABELS)
+    .filter(([k]) => state.filters[k])
+    .map(([k, label]) =>
+      `<span class="chip">${escHtml(label)}: ${escHtml(state.filters[k])} <button data-filter="${k}" aria-label="הסר פילטר">×</button></span>`
+    ).join('');
+  document.getElementById('active-filters').innerHTML = chips;
+}
+
 function render() {
   const sorted = sortRecords(state.records, state.sortCol, state.sortDir);
   state.filtered = filterRecords(sorted, state.filters);
@@ -189,6 +200,7 @@ function render() {
   if (state.page > maxPage) state.page = 1;
   document.getElementById('loading').style.display = 'none';
   document.getElementById('results-count').textContent = `${state.filtered.length} תוצאות`;
+  renderChips();
   renderTable(paginate(state.filtered, state.page, state.pageSize));
   renderPagination();
 }
@@ -251,6 +263,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('filter-takala').addEventListener('change', e => {
     state.filters.takala = e.target.value;
+    state.page = 1;
+    render();
+  });
+
+  document.getElementById('search-input').addEventListener('input', e => {
+    state.filters.search = e.target.value;
+    state.page = 1;
+    render();
+  });
+
+  document.getElementById('active-filters').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-filter]');
+    if (!btn) return;
+    const key = btn.dataset.filter;
+    state.filters[key] = '';
+    const selectId = { tozar: 'filter-tozar', degem: 'filter-degem', shnat: 'filter-shnat', takala: 'filter-takala' }[key];
+    if (selectId) document.getElementById(selectId).value = '';
+    if (key === 'tozar') {
+      state.filters.degem = '';
+      document.getElementById('filter-degem').value = '';
+      updateDegemDropdown();
+    }
     state.page = 1;
     render();
   });
