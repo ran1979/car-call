@@ -30,3 +30,57 @@ function getDistinct(records, field) {
   const vals = new Set(records.map(r => String(r[field] ?? '')).filter(Boolean));
   return [...vals].sort((a, b) => a.localeCompare(b, 'he'));
 }
+
+const API_URL = 'https://data.gov.il/api/3/action/datastore_search' +
+  '?resource_id=2c33523f-87aa-44ec-a736-edbb0a82975e&limit=10000';
+
+const state = {
+  records: [],
+  filtered: [],
+  sortCol: null,
+  sortDir: 'asc',
+  page: 1,
+  pageSize: 50,
+  expandedId: null,
+  filters: { search: '', tozar: '', degem: '', shnat: '', takala: '' },
+};
+
+function showLoading() {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('error').classList.add('hidden');
+  document.getElementById('table-container').classList.add('hidden');
+  document.getElementById('pagination').innerHTML = '';
+  document.getElementById('results-count').textContent = '';
+  document.getElementById('active-filters').innerHTML = '';
+}
+
+function showError() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('error').classList.remove('hidden');
+}
+
+async function fetchData() {
+  showLoading();
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (!json.success) throw new Error('API returned success=false');
+    state.records = json.result.records;
+    state.filtered = state.records;
+    render();
+  } catch (e) {
+    console.error('Fetch failed:', e);
+    showError();
+  }
+}
+
+function render() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('results-count').textContent = `${state.filtered.length} תוצאות`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('retry').addEventListener('click', fetchData);
+  fetchData();
+});
