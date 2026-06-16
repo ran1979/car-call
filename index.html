@@ -28,7 +28,8 @@
       <p>שגיאה בטעינת הנתונים. אנא נסה שוב.</p>
       <button id="retry">נסה שוב</button>
     </div>
-    <table id="results-table" class="hidden">
+    <div id="table-container" class="hidden">
+    <table id="results-table">
       <thead>
         <tr>
           <th data-col="TOZAR_TEUR">יצרן</th>
@@ -38,6 +39,7 @@
       </thead>
       <tbody id="table-body"></tbody>
     </table>
+    </div>
     <div id="pagination"></div>
   </main>
   <script src="app.js"></script>

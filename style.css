@@ -53,6 +53,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 24px; }
   border-radius: 6px;
   font-size: 0.9rem;
   min-width: 160px;
+  direction: rtl;
 }
 
 /* Active filter chips */
@@ -83,13 +84,16 @@ main { max-width: 1200px; margin: 0 auto; padding: 24px; }
 #results-count { margin-bottom: 8px; color: #555; font-size: 0.9rem; }
 
 /* Table */
-#results-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
+#table-container {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  background: #fff;
+}
+
+#results-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
 #results-table th {
