@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>קריאות רכב</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>קריאות רכב</h1>
+  </header>
+  <main>
+    <div id="search-bar">
+      <input type="text" id="search-input" placeholder="🔍 חיפוש חופשי...">
+      <button id="filter-toggle">⚙ סינון מתקדם ▾</button>
+    </div>
+    <div id="filter-panel" class="hidden">
+      <select id="filter-tozar"><option value="">כל היצרנים</option></select>
+      <select id="filter-degem"><option value="">כל הדגמים</option></select>
+      <select id="filter-shnat"><option value="">כל השנים</option></select>
+      <select id="filter-takala"><option value="">כל סוגי התקלות</option></select>
+    </div>
+    <div id="active-filters"></div>
+    <div id="results-count"></div>
+    <p id="loading">טוען נתונים...</p>
+    <div id="error" class="hidden">
+      <p>שגיאה בטעינת הנתונים. אנא נסה שוב.</p>
+      <button id="retry">נסה שוב</button>
+    </div>
+    <table id="results-table" class="hidden">
+      <thead>
+        <tr>
+          <th data-col="TOZAR_TEUR">יצרן</th>
+          <th data-col="DEGEM">דגם</th>
+          <th data-col="SHNAT_RECALL">שנת קריאה</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div id="pagination"></div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
