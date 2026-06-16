@@ -182,8 +182,20 @@ function updateDegemDropdown() {
   fillSelect('filter-degem', getDistinct(pool, 'DEGEM'), 'כל הדגמים');
 }
 
+function fillComboOptions(values) {
+  document.getElementById('filter-tozar-list').innerHTML =
+    values.map(v => `<li data-value="${escAttr(v)}">${escHtml(v)}</li>`).join('');
+}
+
+function filterComboList(query) {
+  const q = query.toLowerCase();
+  document.getElementById('filter-tozar-list').querySelectorAll('li').forEach(li => {
+    li.style.display = li.dataset.value.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
 function populateDropdowns() {
-  fillSelect('filter-tozar', getDistinct(state.records, 'TOZAR_TEUR'), 'כל היצרנים');
+  fillComboOptions(getDistinct(state.records, 'TOZAR_TEUR'));
   fillSelect('filter-shnat', getDistinct(state.records, 'SHNAT_RECALL').reverse(), 'כל שנות הקריאה');
   fillSelect('filter-takala', getDistinct(state.records, 'SUG_TAKALA'), 'כל סוגי התקלות');
   updateDegemDropdown();
@@ -253,12 +265,39 @@ document.addEventListener('DOMContentLoaded', () => {
       : '⚙ סינון מתקדם ▴';
   });
 
-  document.getElementById('filter-tozar').addEventListener('change', e => {
-    state.filters.tozar = e.target.value;
+  const tozarInput = document.getElementById('filter-tozar-input');
+  const tozarList = document.getElementById('filter-tozar-list');
+
+  tozarInput.addEventListener('focus', () => tozarList.classList.remove('hidden'));
+
+  tozarInput.addEventListener('input', () => {
+    filterComboList(tozarInput.value);
+    tozarList.classList.remove('hidden');
+    if (!tozarInput.value) {
+      state.filters.tozar = '';
+      state.filters.degem = '';
+      document.getElementById('filter-degem').value = '';
+      updateDegemDropdown();
+      state.page = 1;
+      render();
+    }
+  });
+
+  tozarList.addEventListener('click', e => {
+    const li = e.target.closest('li');
+    if (!li) return;
+    tozarInput.value = li.dataset.value;
+    state.filters.tozar = li.dataset.value;
     state.filters.degem = '';
+    document.getElementById('filter-degem').value = '';
     updateDegemDropdown();
+    tozarList.classList.add('hidden');
     state.page = 1;
     render();
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#combo-tozar')) tozarList.classList.add('hidden');
   });
 
   document.getElementById('filter-degem').addEventListener('change', e => {
@@ -299,6 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectId = { tozar: 'filter-tozar', degem: 'filter-degem', shnat: 'filter-shnat', takala: 'filter-takala', modelyear: 'filter-model-year' }[key];
     if (selectId) document.getElementById(selectId).value = '';
     if (key === 'tozar') {
+      document.getElementById('filter-tozar-input').value = '';
       state.filters.degem = '';
       document.getElementById('filter-degem').value = '';
       updateDegemDropdown();

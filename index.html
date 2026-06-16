@@ -16,7 +16,10 @@
       <button id="filter-toggle">⚙ סינון מתקדם ▾</button>
     </div>
     <div id="filter-panel" class="hidden">
-      <select id="filter-tozar"><option value="">כל היצרנים</option></select>
+      <div class="combo-wrap" id="combo-tozar">
+        <input type="text" id="filter-tozar-input" placeholder="חיפוש יצרן..." autocomplete="off">
+        <ul id="filter-tozar-list" class="combo-list hidden"></ul>
+      </div>
       <select id="filter-degem"><option value="">כל הדגמים</option></select>
       <select id="filter-shnat"><option value="">כל השנים</option></select>
       <select id="filter-takala"><option value="">כל סוגי התקלות</option></select>
