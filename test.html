@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Tests</title>
+  <style>
+    body { font-family: monospace; padding: 20px; }
+    .pass { color: green; }
+    .fail { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+<h2>Test Results</h2>
+<ul id="results"></ul>
+<script src="app.js"></script>
+<script>
+const output = document.getElementById('results');
+function assert(ok, msg) {
+  const li = document.createElement('li');
+  li.className = ok ? 'pass' : 'fail';
+  li.textContent = (ok ? '✓ ' : '✗ ') + msg;
+  output.appendChild(li);
+}
+
+const R = [
+  { _id: 1, TOZAR_TEUR: 'Toyota',   DEGEM: 'Avensis', SHNAT_RECALL: 2011, SUG_TAKALA: 'דלק',   TEUR_TAKALA: 'תיאור א', OFEN_TIKUN: 'החלפה', YEVUAN_TEUR: 'טויוטה', TELEPHONE: '1-800', WEBSITE: 'http://a.com' },
+  { _id: 2, TOZAR_TEUR: 'Toyota',   DEGEM: 'Corolla', SHNAT_RECALL: 2012, SUG_TAKALA: 'בלמים', TEUR_TAKALA: 'תיאור ב', OFEN_TIKUN: 'תיקון', YEVUAN_TEUR: 'טויוטה', TELEPHONE: '1-800', WEBSITE: '' },
+  { _id: 3, TOZAR_TEUR: 'Mercedes', DEGEM: 'Vito',    SHNAT_RECALL: 2011, SUG_TAKALA: 'חשמל',  TEUR_TAKALA: 'תיאור ג', OFEN_TIKUN: 'החלפה', YEVUAN_TEUR: 'מרצדס',  TELEPHONE: '03-9', WEBSITE: 'http://b.com' },
+];
+const noFilter = { search: '', tozar: '', degem: '', shnat: '', takala: '' };
+
+// filterRecords
+assert(filterRecords(R, noFilter).length === 3,                                         'no filters → all 3');
+assert(filterRecords(R, { ...noFilter, tozar: 'Toyota' }).length === 2,                 'filter tozar=Toyota → 2');
+assert(filterRecords(R, { ...noFilter, tozar: 'Toyota', degem: 'Avensis' }).length === 1, 'filter tozar+degem → 1');
+assert(filterRecords(R, { ...noFilter, shnat: '2011' }).length === 2,                   'filter shnat=2011 → 2');
+assert(filterRecords(R, { ...noFilter, takala: 'דלק' }).length === 1,                   'filter takala → 1');
+assert(filterRecords(R, { ...noFilter, search: 'vito' }).length === 1,                  'search case-insensitive → 1');
+assert(filterRecords(R, { ...noFilter, search: 'תיאור' }).length === 3,                 'search Hebrew substring → 3');
+assert(filterRecords(R, { ...noFilter, search: 'xyz' }).length === 0,                   'search no match → 0');
+
+// sortRecords
+const asc = sortRecords(R, 'TOZAR_TEUR', 'asc');
+assert(asc[0].TOZAR_TEUR === 'Mercedes',  'sort asc: Mercedes first');
+assert(asc[2].TOZAR_TEUR === 'Toyota',    'sort asc: Toyota last');
+const desc = sortRecords(R, 'TOZAR_TEUR', 'desc');
+assert(desc[0].TOZAR_TEUR === 'Toyota',   'sort desc: Toyota first');
+const noSort = sortRecords(R, null, 'asc');
+assert(noSort.length === 3,               'null col → all records');
+assert(noSort[0]._id === 1,               'null col → original order');
+
+// paginate
+assert(paginate(R, 1, 2).length === 2,    'page 1 of 2 → 2 items');
+assert(paginate(R, 1, 2)[0]._id === 1,    'page 1 starts at record 1');
+assert(paginate(R, 2, 2).length === 1,    'page 2 → 1 item');
+assert(paginate(R, 2, 2)[0]._id === 3,    'page 2 item is record 3');
+assert(paginate(R, 1, 50).length === 3,   'pageSize > total → all');
+
+// getDistinct
+const tozars = getDistinct(R, 'TOZAR_TEUR');
+assert(tozars.length === 2,               'distinct tozar → 2');
+assert(tozars[0] === 'Mercedes',          'distinct sorted: Mercedes first');
+const shnot = getDistinct(R, 'SHNAT_RECALL');
+assert(shnot.length === 2,               'distinct shnat → 2');
+assert(shnot.includes('2011'),           'distinct shnat includes 2011');
+</script>
+</body>
+</html>
