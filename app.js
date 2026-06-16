@@ -70,6 +70,7 @@ async function fetchData() {
     if (!json.result?.records) throw new Error('API response missing result.records');
     state.records = json.result.records;
     state.filtered = [...state.records];
+    populateDropdowns();
     render();
   } catch (e) {
     console.error('Fetch failed:', e);
@@ -160,6 +161,27 @@ function renderPagination() {
   ].join('');
 }
 
+function fillSelect(id, values, placeholder) {
+  const sel = document.getElementById(id);
+  const current = sel.value;
+  sel.innerHTML = `<option value="">${escHtml(placeholder)}</option>` +
+    values.map(v => `<option value="${escAttr(v)}"${v === current ? ' selected' : ''}>${escHtml(v)}</option>`).join('');
+}
+
+function updateDegemDropdown() {
+  const pool = state.filters.tozar
+    ? state.records.filter(r => r.TOZAR_TEUR === state.filters.tozar)
+    : state.records;
+  fillSelect('filter-degem', getDistinct(pool, 'DEGEM'), 'כל הדגמים');
+}
+
+function populateDropdowns() {
+  fillSelect('filter-tozar', getDistinct(state.records, 'TOZAR_TEUR'), 'כל היצרנים');
+  fillSelect('filter-shnat', getDistinct(state.records, 'SHNAT_RECALL').reverse(), 'כל השנים');
+  fillSelect('filter-takala', getDistinct(state.records, 'SUG_TAKALA'), 'כל סוגי התקלות');
+  updateDegemDropdown();
+}
+
 function render() {
   const sorted = sortRecords(state.records, state.sortCol, state.sortDir);
   state.filtered = filterRecords(sorted, state.filters);
@@ -201,6 +223,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const id = Number(row.dataset.id);
     state.expandedId = state.expandedId === id ? null : id;
     renderTable(paginate(state.filtered, state.page, state.pageSize));
+  });
+
+  document.getElementById('filter-toggle').addEventListener('click', () => {
+    document.getElementById('filter-panel').classList.toggle('hidden');
+  });
+
+  document.getElementById('filter-tozar').addEventListener('change', e => {
+    state.filters.tozar = e.target.value;
+    state.filters.degem = '';
+    updateDegemDropdown();
+    state.page = 1;
+    render();
+  });
+
+  document.getElementById('filter-degem').addEventListener('change', e => {
+    state.filters.degem = e.target.value;
+    state.page = 1;
+    render();
+  });
+
+  document.getElementById('filter-shnat').addEventListener('change', e => {
+    state.filters.shnat = e.target.value;
+    state.page = 1;
+    render();
+  });
+
+  document.getElementById('filter-takala').addEventListener('change', e => {
+    state.filters.takala = e.target.value;
+    state.page = 1;
+    render();
   });
 
   fetchData();
