@@ -4,7 +4,8 @@ function filterRecords(records, filters) {
   return records.filter(r => {
     if (filters.search) {
       const q = filters.search.toLowerCase();
-      if (!Object.values(r).some(v => String(v).toLowerCase().includes(q))) return false;
+      const SEARCH_FIELDS = ['TOZAR_TEUR', 'DEGEM', 'SHNAT_RECALL', 'SUG_TAKALA', 'TEUR_TAKALA', 'OFEN_TIKUN', 'YEVUAN_TEUR'];
+      if (!SEARCH_FIELDS.some(f => String(r[f] ?? '').toLowerCase().includes(q))) return false;
     }
     if (filters.tozar && r.TOZAR_TEUR !== filters.tozar) return false;
     if (filters.degem && r.DEGEM !== filters.degem) return false;
@@ -188,7 +189,7 @@ function renderChips() {
   const chips = Object.entries(CHIP_LABELS)
     .filter(([k]) => state.filters[k])
     .map(([k, label]) =>
-      `<span class="chip">${escHtml(label)}: ${escHtml(state.filters[k])} <button data-filter="${k}" aria-label="הסר פילטר">×</button></span>`
+      `<span class="chip">${escHtml(label)}: ${escHtml(state.filters[k])} <button data-filter="${k}" aria-label="${escAttr('הסר פילטר ' + label)}">×</button></span>`
     ).join('');
   document.getElementById('active-filters').innerHTML = chips;
 }
@@ -238,7 +239,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('filter-toggle').addEventListener('click', () => {
-    document.getElementById('filter-panel').classList.toggle('hidden');
+    const panel = document.getElementById('filter-panel');
+    const btn = document.getElementById('filter-toggle');
+    panel.classList.toggle('hidden');
+    btn.textContent = panel.classList.contains('hidden')
+      ? '⚙ סינון מתקדם ▾'
+      : '⚙ סינון מתקדם ▴';
   });
 
   document.getElementById('filter-tozar').addEventListener('change', e => {
