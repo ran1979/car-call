@@ -47,7 +47,8 @@ main { max-width: 1200px; margin: 0 auto; padding: 24px; }
   margin-bottom: 12px;
 }
 
-#filter-panel select {
+#filter-panel select,
+#filter-panel input[type="number"] {
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;

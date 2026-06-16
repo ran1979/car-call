@@ -11,6 +11,12 @@ function filterRecords(records, filters) {
     if (filters.degem && r.DEGEM !== filters.degem) return false;
     if (filters.shnat && String(r.SHNAT_RECALL) !== filters.shnat) return false;
     if (filters.takala && r.SUG_TAKALA !== filters.takala) return false;
+    if (filters.modelyear) {
+      const y = parseInt(filters.modelyear, 10);
+      const begin = parseInt(r.BUILD_BEGIN_A, 10) || 0;
+      const end = parseInt(r.BUILD_END_A, 10) || 9999;
+      if (y < begin || y > end) return false;
+    }
     return true;
   });
 }
@@ -44,7 +50,7 @@ const state = {
   page: 1,
   pageSize: 50,
   expandedId: null,
-  filters: { search: '', tozar: '', degem: '', shnat: '', takala: '' },
+  filters: { search: '', tozar: '', degem: '', shnat: '', takala: '', modelyear: '' },
 };
 
 function showLoading() {
@@ -178,12 +184,12 @@ function updateDegemDropdown() {
 
 function populateDropdowns() {
   fillSelect('filter-tozar', getDistinct(state.records, 'TOZAR_TEUR'), 'כל היצרנים');
-  fillSelect('filter-shnat', getDistinct(state.records, 'SHNAT_RECALL').reverse(), 'כל השנים');
+  fillSelect('filter-shnat', getDistinct(state.records, 'SHNAT_RECALL').reverse(), 'כל שנות הקריאה');
   fillSelect('filter-takala', getDistinct(state.records, 'SUG_TAKALA'), 'כל סוגי התקלות');
   updateDegemDropdown();
 }
 
-const CHIP_LABELS = { tozar: 'יצרן', degem: 'דגם', shnat: 'שנה', takala: 'תקלה' };
+const CHIP_LABELS = { tozar: 'יצרן', degem: 'דגם', shnat: 'שנת קריאה', takala: 'תקלה', modelyear: 'שנת ייצור' };
 
 function renderChips() {
   const chips = Object.entries(CHIP_LABELS)
@@ -273,6 +279,12 @@ document.addEventListener('DOMContentLoaded', () => {
     render();
   });
 
+  document.getElementById('filter-model-year').addEventListener('input', e => {
+    state.filters.modelyear = e.target.value;
+    state.page = 1;
+    render();
+  });
+
   document.getElementById('search-input').addEventListener('input', e => {
     state.filters.search = e.target.value;
     state.page = 1;
@@ -284,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!btn) return;
     const key = btn.dataset.filter;
     state.filters[key] = '';
-    const selectId = { tozar: 'filter-tozar', degem: 'filter-degem', shnat: 'filter-shnat', takala: 'filter-takala' }[key];
+    const selectId = { tozar: 'filter-tozar', degem: 'filter-degem', shnat: 'filter-shnat', takala: 'filter-takala', modelyear: 'filter-model-year' }[key];
     if (selectId) document.getElementById(selectId).value = '';
     if (key === 'tozar') {
       state.filters.degem = '';
