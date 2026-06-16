@@ -181,5 +181,19 @@ document.addEventListener('DOMContentLoaded', () => {
     render();
   });
 
+  document.querySelector('#results-table thead').addEventListener('click', e => {
+    const th = e.target.closest('th[data-col]');
+    if (!th) return;
+    const col = th.dataset.col;
+    if (state.sortCol === col) {
+      state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      state.sortCol = col;
+      state.sortDir = 'asc';
+    }
+    state.page = 1;
+    render();
+  });
+
   fetchData();
 });
