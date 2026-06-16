@@ -31,6 +31,7 @@ function getDistinct(records, field) {
   return [...vals].sort((a, b) => a.localeCompare(b, 'he'));
 }
 
+// dataset is ~3k rows; 10000 is a safe ceiling
 const API_URL = 'https://data.gov.il/api/3/action/datastore_search' +
   '?resource_id=2c33523f-87aa-44ec-a736-edbb0a82975e&limit=10000';
 
@@ -66,8 +67,9 @@ async function fetchData() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
     if (!json.success) throw new Error('API returned success=false');
+    if (!json.result?.records) throw new Error('API response missing result.records');
     state.records = json.result.records;
-    state.filtered = state.records;
+    state.filtered = [...state.records];
     render();
   } catch (e) {
     console.error('Fetch failed:', e);
