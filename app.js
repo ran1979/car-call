@@ -195,5 +195,13 @@ document.addEventListener('DOMContentLoaded', () => {
     render();
   });
 
+  document.getElementById('table-body').addEventListener('click', e => {
+    const row = e.target.closest('tr.data-row');
+    if (!row) return;
+    const id = Number(row.dataset.id);
+    state.expandedId = state.expandedId === id ? null : id;
+    renderTable(paginate(state.filtered, state.page, state.pageSize));
+  });
+
   fetchData();
 });
