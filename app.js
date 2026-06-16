@@ -116,15 +116,16 @@ function renderTable(rows) {
 
   document.getElementById('table-body').innerHTML = rows.map(r => {
     const isExpanded = state.expandedId === r._id;
-    const dataRow = `<tr class="data-row${isExpanded ? ' expanded' : ''}" data-id="${r._id}">
+    const dataRow = `<tr class="data-row${isExpanded ? ' expanded' : ''}" data-id="${escAttr(String(r._id))}">
       <td>${escHtml(r.TOZAR_TEUR)}</td>
       <td>${escHtml(r.DEGEM)}</td>
       <td>${escHtml(String(r.SHNAT_RECALL ?? ''))}</td>
     </tr>`;
     if (!isExpanded) return dataRow;
-    const website = r.WEBSITE
+    const isSafeUrl = r.WEBSITE && /^https?:\/\//i.test(r.WEBSITE);
+    const website = isSafeUrl
       ? `<a href="${escAttr(r.WEBSITE)}" target="_blank" rel="noopener noreferrer">${escHtml(r.WEBSITE)}</a>`
-      : '—';
+      : r.WEBSITE ? escHtml(r.WEBSITE) : '—';
     return dataRow + `<tr class="detail-row"><td colspan="3"><div class="detail-panel">
       <p><strong>תיאור תקלה:</strong> ${escHtml(r.TEUR_TAKALA ?? '—')}</p>
       <p><strong>אופן תיקון:</strong> ${escHtml(r.OFEN_TIKUN ?? '—')}</p>
@@ -162,6 +163,8 @@ function renderPagination() {
 function render() {
   const sorted = sortRecords(state.records, state.sortCol, state.sortDir);
   state.filtered = filterRecords(sorted, state.filters);
+  const maxPage = Math.max(1, Math.ceil(state.filtered.length / state.pageSize));
+  if (state.page > maxPage) state.page = 1;
   document.getElementById('loading').style.display = 'none';
   document.getElementById('results-count').textContent = `${state.filtered.length} תוצאות`;
   renderTable(paginate(state.filtered, state.page, state.pageSize));
