@@ -15,7 +15,7 @@ function filterRecords(records, filters) {
 }
 
 function sortRecords(records, col, dir) {
-  if (!col) return records;
+  if (!col) return [...records];
   return [...records].sort((a, b) => {
     const cmp = String(a[col] ?? '').localeCompare(String(b[col] ?? ''), 'he');
     return dir === 'asc' ? cmp : -cmp;

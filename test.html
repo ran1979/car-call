@@ -48,6 +48,7 @@ assert(desc[0].TOZAR_TEUR === 'Toyota',   'sort desc: Toyota first');
 const noSort = sortRecords(R, null, 'asc');
 assert(noSort.length === 3,               'null col → all records');
 assert(noSort[0]._id === 1,               'null col → original order');
+assert(noSort !== R,                      'null col → returns copy not original reference');
 
 // paginate
 assert(paginate(R, 1, 2).length === 2,    'page 1 of 2 → 2 items');
@@ -63,6 +64,12 @@ assert(tozars[0] === 'Mercedes',          'distinct sorted: Mercedes first');
 const shnot = getDistinct(R, 'SHNAT_RECALL');
 assert(shnot.length === 2,               'distinct shnat → 2');
 assert(shnot.includes('2011'),           'distinct shnat includes 2011');
+
+// edge cases
+assert(filterRecords([], noFilter).length === 0,    'filterRecords empty array → 0');
+assert(sortRecords([], 'TOZAR_TEUR', 'asc').length === 0, 'sortRecords empty array → 0');
+assert(paginate([], 1, 10).length === 0,            'paginate empty array → 0');
+assert(getDistinct([], 'TOZAR_TEUR').length === 0,  'getDistinct empty array → 0');
 </script>
 </body>
 </html>
