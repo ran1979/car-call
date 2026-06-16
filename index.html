@@ -17,8 +17,14 @@
     </div>
     <div id="filter-panel" class="hidden">
       <div class="combo-wrap" id="combo-tozar">
-        <input type="text" id="filter-tozar-input" placeholder="חיפוש יצרן..." autocomplete="off">
-        <ul id="filter-tozar-list" class="combo-list hidden"></ul>
+        <button type="button" class="combo-trigger" id="filter-tozar-trigger">
+          <span id="filter-tozar-label">כל היצרנים</span>
+          <span class="combo-arrow">▾</span>
+        </button>
+        <div class="combo-panel hidden" id="filter-tozar-panel">
+          <input type="text" id="filter-tozar-input" placeholder="חיפוש יצרן..." autocomplete="off">
+          <ul id="filter-tozar-list" class="combo-list"></ul>
+        </div>
       </div>
       <select id="filter-degem"><option value="">כל הדגמים</option></select>
       <select id="filter-shnat"><option value="">כל השנים</option></select>

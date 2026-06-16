@@ -265,39 +265,46 @@ document.addEventListener('DOMContentLoaded', () => {
       : '⚙ סינון מתקדם ▴';
   });
 
+  const tozarTrigger = document.getElementById('filter-tozar-trigger');
+  const tozarPanel = document.getElementById('filter-tozar-panel');
   const tozarInput = document.getElementById('filter-tozar-input');
   const tozarList = document.getElementById('filter-tozar-list');
+  const tozarLabel = document.getElementById('filter-tozar-label');
 
-  tozarInput.addEventListener('focus', () => tozarList.classList.remove('hidden'));
+  function openTozarPanel() {
+    tozarPanel.classList.remove('hidden');
+    tozarInput.value = '';
+    filterComboList('');
+    tozarInput.focus();
+  }
 
-  tozarInput.addEventListener('input', () => {
-    filterComboList(tozarInput.value);
-    tozarList.classList.remove('hidden');
-    if (!tozarInput.value) {
-      state.filters.tozar = '';
-      state.filters.degem = '';
-      document.getElementById('filter-degem').value = '';
-      updateDegemDropdown();
-      state.page = 1;
-      render();
-    }
+  function closeTozarPanel() {
+    tozarPanel.classList.add('hidden');
+  }
+
+  tozarTrigger.addEventListener('click', () => {
+    tozarPanel.classList.contains('hidden') ? openTozarPanel() : closeTozarPanel();
   });
+
+  tozarInput.addEventListener('input', () => filterComboList(tozarInput.value));
 
   tozarList.addEventListener('click', e => {
     const li = e.target.closest('li');
     if (!li) return;
-    tozarInput.value = li.dataset.value;
-    state.filters.tozar = li.dataset.value;
+    const val = li.dataset.value;
+    state.filters.tozar = val;
+    tozarLabel.textContent = val;
+    tozarList.querySelectorAll('li').forEach(el => el.classList.toggle('combo-selected', el === li));
     state.filters.degem = '';
     document.getElementById('filter-degem').value = '';
     updateDegemDropdown();
-    tozarList.classList.add('hidden');
+    closeTozarPanel();
     state.page = 1;
     render();
   });
 
   document.addEventListener('click', e => {
-    if (!e.target.closest('#combo-tozar')) tozarList.classList.add('hidden');
+    if (!e.target.closest('#combo-tozar')) closeTozarPanel();
   });
 
   document.getElementById('filter-degem').addEventListener('change', e => {
@@ -338,7 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectId = { tozar: 'filter-tozar', degem: 'filter-degem', shnat: 'filter-shnat', takala: 'filter-takala', modelyear: 'filter-model-year' }[key];
     if (selectId) document.getElementById(selectId).value = '';
     if (key === 'tozar') {
-      document.getElementById('filter-tozar-input').value = '';
+      document.getElementById('filter-tozar-label').textContent = 'כל היצרנים';
+      document.getElementById('filter-tozar-list').querySelectorAll('li').forEach(el => el.classList.remove('combo-selected'));
       state.filters.degem = '';
       document.getElementById('filter-degem').value = '';
       updateDegemDropdown();

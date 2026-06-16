@@ -49,27 +49,48 @@ main { max-width: 1200px; margin: 0 auto; padding: 24px; }
 
 .combo-wrap { position: relative; min-width: 160px; }
 
-.combo-wrap input {
+.combo-trigger {
   width: 100%;
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 0.9rem;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   direction: rtl;
+  text-align: right;
 }
 
-.combo-list {
+.combo-trigger:hover { border-color: #999; }
+
+.combo-panel {
   position: absolute;
   top: 100%;
   right: 0;
   left: 0;
   background: #fff;
   border: 1px solid #ccc;
-  border-top: none;
   border-radius: 0 0 6px 6px;
+  z-index: 100;
+  box-shadow: 0 4px 8px rgba(0,0,0,.1);
+}
+
+.combo-panel input {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+  direction: rtl;
+  outline: none;
+}
+
+.combo-list {
   max-height: 220px;
   overflow-y: auto;
-  z-index: 100;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -83,6 +104,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 24px; }
 }
 
 .combo-list li:hover { background: #f0f4ff; }
+.combo-list li.combo-selected { background: #eef2ff; font-weight: 600; }
 
 #filter-panel select,
 #filter-panel input[type="number"] {
