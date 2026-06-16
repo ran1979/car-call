@@ -77,12 +77,106 @@ async function fetchData() {
   }
 }
 
+function escHtml(str) {
+  return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function escAttr(str) {
+  return String(str ?? '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function renderTable(rows) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('error').classList.add('hidden');
+
+  const container = document.getElementById('table-container');
+
+  if (rows.length === 0) {
+    container.classList.add('hidden');
+    let empty = document.getElementById('empty-state');
+    if (!empty) {
+      empty = document.createElement('p');
+      empty.id = 'empty-state';
+      container.insertAdjacentElement('afterend', empty);
+    }
+    empty.textContent = 'לא נמצאו תוצאות';
+    return;
+  }
+
+  const existingEmpty = document.getElementById('empty-state');
+  if (existingEmpty) existingEmpty.remove();
+  container.classList.remove('hidden');
+
+  document.querySelectorAll('#results-table th[data-col]').forEach(th => {
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (th.dataset.col === state.sortCol) {
+      th.classList.add(state.sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+    }
+  });
+
+  document.getElementById('table-body').innerHTML = rows.map(r => {
+    const isExpanded = state.expandedId === r._id;
+    const dataRow = `<tr class="data-row${isExpanded ? ' expanded' : ''}" data-id="${r._id}">
+      <td>${escHtml(r.TOZAR_TEUR)}</td>
+      <td>${escHtml(r.DEGEM)}</td>
+      <td>${escHtml(String(r.SHNAT_RECALL ?? ''))}</td>
+    </tr>`;
+    if (!isExpanded) return dataRow;
+    const website = r.WEBSITE
+      ? `<a href="${escAttr(r.WEBSITE)}" target="_blank" rel="noopener noreferrer">${escHtml(r.WEBSITE)}</a>`
+      : '—';
+    return dataRow + `<tr class="detail-row"><td colspan="3"><div class="detail-panel">
+      <p><strong>תיאור תקלה:</strong> ${escHtml(r.TEUR_TAKALA ?? '—')}</p>
+      <p><strong>אופן תיקון:</strong> ${escHtml(r.OFEN_TIKUN ?? '—')}</p>
+      <p><strong>יבואן:</strong> ${escHtml(r.YEVUAN_TEUR ?? '—')}</p>
+      <p><strong>טלפון:</strong> ${escHtml(r.TELEPHONE ?? '—')}</p>
+      <p><strong>אתר:</strong> ${website}</p>
+    </div></td></tr>`;
+  }).join('');
+}
+
+function renderPagination() {
+  const total = Math.ceil(state.filtered.length / state.pageSize);
+  const el = document.getElementById('pagination');
+  if (total <= 1) { el.innerHTML = ''; return; }
+
+  const p = state.page;
+  const from = Math.max(1, p - 2);
+  const to = Math.min(total, p + 2);
+
+  const btn = (pg, label, disabled = false) =>
+    `<button class="page-btn${pg === p ? ' active' : ''}" data-page="${pg}"${disabled ? ' disabled' : ''}>${label}</button>`;
+
+  const nums = [];
+  if (from > 1) { nums.push(btn(1, '1')); if (from > 2) nums.push('<span>…</span>'); }
+  for (let i = from; i <= to; i++) nums.push(btn(i, String(i)));
+  if (to < total) { if (to < total - 1) nums.push('<span>…</span>'); nums.push(btn(total, String(total))); }
+
+  el.innerHTML = [
+    btn(p - 1, 'הקודם', p === 1),
+    ...nums,
+    btn(p + 1, 'הבא', p === total),
+  ].join('');
+}
+
 function render() {
+  const sorted = sortRecords(state.records, state.sortCol, state.sortDir);
+  state.filtered = filterRecords(sorted, state.filters);
   document.getElementById('loading').style.display = 'none';
   document.getElementById('results-count').textContent = `${state.filtered.length} תוצאות`;
+  renderTable(paginate(state.filtered, state.page, state.pageSize));
+  renderPagination();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('retry').addEventListener('click', fetchData);
+
+  document.getElementById('pagination').addEventListener('click', e => {
+    const btn = e.target.closest('button.page-btn:not([disabled]):not(.active)');
+    if (!btn) return;
+    state.page = Number(btn.dataset.page);
+    render();
+  });
+
   fetchData();
 });
